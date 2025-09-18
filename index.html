@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VTE Prophylaxis Guideline Calculator</title>
+    <title>VTE Prophylaxis Guideline Calculator v2</title>
     <style>
         :root {
             --primary-color: #005a9c; /* A professional blue */
@@ -58,7 +58,7 @@
         .question-text {
             font-size: 1.2em;
             font-weight: 500;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
         }
         .button-group {
@@ -66,6 +66,7 @@
             justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
+            margin-top: 20px;
         }
         button {
             padding: 12px 25px;
@@ -128,6 +129,33 @@
         .hidden {
             display: none;
         }
+        /* ---- NEW STYLES FOR CRITERIA LISTS ---- */
+        .criteria-details {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+        }
+        .criteria-details h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 1em;
+            text-align: left;
+            font-weight: 600;
+        }
+        .criteria-list {
+            list-style-type: disc;
+            list-style-position: inside;
+            text-align: left;
+            padding-left: 10px;
+            margin: 0;
+        }
+        .criteria-list li {
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
     </style>
 </head>
 <body>
@@ -139,6 +167,18 @@
     <div id="quiz-container">
         <div id="q-contraindication" class="question-box">
             <p class="question-text">Does the patient have an Anticoagulation Contraindication?</p>
+            
+            <div class="criteria-details">
+                <h4>Review Contraindications:</h4>
+                <ul class="criteria-list">
+                    <li>Active Bleeding</li>
+                    <li>Current Anticoagulation</li>
+                    <li>Platelets < 30,000/uL</li>
+                    <li>Cirrhosis with Platelets < 40,000/uL</li>
+                    <li>Malignant HTN</li>
+                    <li>Coagulopathy / INR > 1.5</li>
+                </ul>
+            </div>
             <div class="button-group">
                 <button class="yes-btn" onclick="showResult('Hold Anticoagulation & Initiate Mechanical Prophylaxis.<br><small>Reassess contraindications in 24 hours.</small>')">Yes</button>
                 <button class="no-btn" onclick="showNext('q-contraindication', 'q-cancer')">No</button>
@@ -155,6 +195,23 @@
         
         <div id="q-doac-exclusion" class="question-box hidden">
             <p class="question-text">Does the patient meet any DOAC / Rivaroxaban exclusion criteria?</p>
+            
+            <div class="criteria-details">
+                <h4>DOAC Exclusions:</h4>
+                <ul class="criteria-list">
+                    <li>Surgery Expected</li>
+                    <li>Cannot Tolerate Oral Meds</li>
+                    <li>On itraconazole, ketoconazole, phenytoin, or rifampin</li>
+                    <li>Child Pugh Class C</li>
+                    <li>Hypersensitivity Reactions / Treatment Failure</li>
+                </ul>
+                <h4 style="margin-top: 15px;">Specific Rivaroxaban Exclusions:</h4>
+                 <ul class="criteria-list">
+                    <li>High Risk Antiphospholipid Syndrome</li>
+                    <li>Child Pugh B or C Liver Disease</li>
+                    <li>Valvular Heart Disease</li>
+                </ul>
+            </div>
             <div class="button-group">
                 <button class="yes-btn" onclick="showNext('q-doac-exclusion', 'q-crcl-enoxaparin')">Yes</button>
                 <button class="no-btn" onclick="showNext('q-doac-exclusion', 'q-crcl-doac')">No</button>
