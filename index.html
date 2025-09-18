@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VTE Prophylaxis Decision Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 2rem;
+    }
+    .card {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 0.5rem;
+    }
+    button:hover { background: #1e4fc9; }
+    .result { font-weight: bold; color: #2563eb; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="question">Loading...</h1>
+    <div id="buttons">
+      <button onclick="answer('yes')">Yes</button>
+      <button onclick="answer('no')">No</button>
+    </div>
+    <div id="result" class="result"></div>
+    <button id="restart" onclick="restart()" style="display:none;">Start Over</button>
+  </div>
+
+  <script>
+    const steps = [
+      {
+        id: "contra",
+        text: "Does the patient have an Anticoagulation Contraindication? (Active bleeding, current AC, plt<30k, cirrhosis+plt<40k, malignant HTN, coagulopathy, INR>1.5)",
+        yes: () => showResult("Hold anticoagulation. Start mechanical prophylaxis. Reassess in 24h."),
+        no: "cancer"
+      },
+      {
+        id: "cancer",
+        text: "Does the patient have Active Cancer?",
+        yes: () => showResult("LMWH during inpatient stay + Khorana Score → DOAC at discharge"),
+        no: "doacExclusion"
+      },
+      {
+        id: "doacExclusion",
+        text: "Any DOAC/Rivaroxaban exclusion? (planned surgery, can't take PO, azole/phenytoin/rifampin, Child Pugh C, hypersensitivity, treatment failure, APS, Child Pugh B/C, valvular heart dz)",
+        yes: "enoxaHeparin",
+        no: "doacCrcl"
+      },
+      {
+        id: "doacCrcl",
+        text: "Is Creatinine Clearance < 30?",
+        yes: () => showResult("Apixaban 2.5mg PO BID"),
+        no: () => showResult("Rivaroxaban 10mg PO daily OR Apixaban 2.5mg PO BID")
+      },
+      {
+        id: "enoxaHeparin",
+        text: "Is Creatinine Clearance < 30?",
+        yes: "heparinPath",
+        no: "enoxaPath"
+      },
+      {
+        id: "enoxaPath",
+        text: "What is the patient's BMI?\n<18 → 30mg SQ daily\n18-40 → 40mg SQ daily\n>40 → 0.5mg/kg SQ daily (max 100mg) + anti-Xa after 3rd dose",
+        yes: () => showResult("See dosing based on BMI above"),
+        no: () => showResult("See dosing based on BMI above")
+      },
+      {
+        id: "heparinPath",
+        text: "Is the patient's BMI > 40?",
+        yes: () => showResult("Heparin 7,500 Units SQ TID"),
+        no: () => showResult("Heparin 5,000 Units SQ TID or Enoxaparin 30mg SQ daily")
+      }
+    ];
+
+    let current;
+
+    function start() {
+      current = steps[0];
+      document.getElementById("result").innerText = "";
+      document.getElementById("restart").style.display = "none";
+      document.getElementById("buttons").style.display = "block";
+      showQuestion(current);
+    }
+
+    function showQuestion(step) {
+      document.getElementById("question").innerText = step.text;
+    }
+
+    function answer(resp) {
+      const next = current[resp];
+      if (typeof next === "function") {
+        next();
+      } else if (typeof next === "string") {
+        current = steps.find(s => s.id === next);
+        showQuestion(current);
+      }
+    }
+
+    function showResult(text) {
+      document.getElementById("question").innerText = "Recommended Prophylaxis:";
+      document.getElementById("buttons").style.display = "none";
+      document.getElementById("result").innerText = text;
+      document.getElementById("restart").style.display = "inline-block";
+    }
+
+    function restart() {
+      start();
+    }
+
+    start();
+  </script>
+</body>
+</html>
