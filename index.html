@@ -1,133 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>VTE Prophylaxis Decision Tool</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f9fc;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 2rem;
-    }
-    .card {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 12px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      text-align: center;
-    }
-    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
-    button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin: 0.5rem;
-    }
-    button:hover { background: #1e4fc9; }
-    .result { font-weight: bold; color: #2563eb; margin-top: 1rem; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTE Prophylaxis Guideline Calculator</title>
+    <style>
+        :root {
+            --primary-color: #005a9c; /* A professional blue */
+            --secondary-color: #f0f8ff; /* Light blue background */
+            --accent-color-yes: #28a745; /* Green for 'Yes' */
+            --accent-color-no: #dc3545; /* Red for 'No' */
+            --text-color: #333;
+            --border-color: #ddd;
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: var(--card-bg);
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-top: 0;
+        }
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #666;
+        }
+        .question-box, .result-box {
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #fafafa;
+        }
+        .question-text {
+            font-size: 1.2em;
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            min-width: 100px;
+        }
+        .yes-btn { background-color: var(--accent-color-yes); }
+        .yes-btn:hover { background-color: #218838; transform: translateY(-2px); }
+        .no-btn { background-color: var(--accent-color-no); }
+        .no-btn:hover { background-color: #c82333; transform: translateY(-2px); }
+        .submit-btn { background-color: var(--primary-color); }
+        .submit-btn:hover { background-color: #004b80; transform: translateY(-2px); }
+        
+        #restart-button {
+            display: block;
+            margin: 20px auto 0;
+            background-color: #6c757d;
+        }
+        #restart-button:hover { background-color: #5a6268; }
+
+        .result-box {
+            background-color: #e3f2fd;
+            border-color: #90caf9;
+        }
+        #result-text {
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary-color);
+        }
+        .input-group {
+            text-align: center;
+        }
+        .input-group label {
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        .input-group input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            width: 80px;
+            font-size: 1em;
+            text-align: center;
+        }
+        .disclaimer {
+            font-size: 0.8em;
+            color: #777;
+            text-align: center;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="card">
-    <h1 id="question">Loading...</h1>
-    <div id="buttons">
-      <button onclick="answer('yes')">Yes</button>
-      <button onclick="answer('no')">No</button>
+
+<div class="container">
+    <h1>VTE Prophylaxis Calculator</h1>
+    <p class="subtitle">For Acutely Ill Medicine Patients</p>
+
+    <div id="quiz-container">
+        <div id="q-contraindication" class="question-box">
+            <p class="question-text">Does the patient have an Anticoagulation Contraindication?</p>
+            <div class="button-group">
+                <button class="yes-btn" onclick="showResult('Hold Anticoagulation & Initiate Mechanical Prophylaxis.<br><small>Reassess contraindications in 24 hours.</small>')">Yes</button>
+                <button class="no-btn" onclick="showNext('q-contraindication', 'q-cancer')">No</button>
+            </div>
+        </div>
+
+        <div id="q-cancer" class="question-box hidden">
+            <p class="question-text">Does the patient have Active Cancer?</p>
+            <div class="button-group">
+                <button class="yes-btn" onclick="showResult('Administer LMWH during inpatient stay.<br><small>Calculate the Khorana Score and prescribe a DOAC at discharge.</small>')">Yes</button>
+                <button class="no-btn" onclick="showNext('q-cancer', 'q-doac-exclusion')">No</button>
+            </div>
+        </div>
+        
+        <div id="q-doac-exclusion" class="question-box hidden">
+            <p class="question-text">Does the patient meet any DOAC / Rivaroxaban exclusion criteria?</p>
+            <div class="button-group">
+                <button class="yes-btn" onclick="showNext('q-doac-exclusion', 'q-crcl-enoxaparin')">Yes</button>
+                <button class="no-btn" onclick="showNext('q-doac-exclusion', 'q-crcl-doac')">No</button>
+            </div>
+        </div>
+
+        <div id="q-crcl-doac" class="question-box hidden">
+            <p class="question-text">Is the patient's Creatinine Clearance < 30?</p>
+            <div class="button-group">
+                <button class="yes-btn" onclick="showResult('Prescribe Apixaban 2.5mg PO BID.')">Yes</button>
+                <button class="no-btn" onclick="showResult('Prescribe Rivaroxaban 10mg PO Daily<br>OR<br>Apixaban 2.5mg PO BID.')">No</button>
+            </div>
+        </div>
+        
+        <div id="q-crcl-enoxaparin" class="question-box hidden">
+             <p class="question-text">Is the patient's Creatinine Clearance < 30?</p>
+            <div class="button-group">
+                <button class="yes-btn" onclick="showNext('q-crcl-enoxaparin', 'q-bmi-heparin')">Yes</button> <button class="no-btn" onclick="showNext('q-crcl-enoxaparin', 'q-bmi-enoxaparin')">No</button> </div>
+        </div>
+        
+        <div id="q-bmi-enoxaparin" class="question-box hidden">
+            <p class="question-text">Enter the patient's BMI:</p>
+            <div class="input-group">
+                 <input type="number" id="bmi-enox-input" placeholder="e.g., 25" step="0.1">
+            </div>
+            <br>
+            <div class="button-group">
+                <button class="submit-btn" onclick="handleBmiEnoxaparin()">Submit</button>
+            </div>
+        </div>
+
+        <div id="q-bmi-heparin" class="question-box hidden">
+            <p class="question-text">Is the patient's BMI > 40?</p>
+            <div class="button-group">
+                <button class="yes-btn" onclick="showResult('Heparin 7,500 Units SQ TID.<br><small>Monitor for bleeding.</small>')">Yes</button>
+                <button class="no-btn" onclick="showResult('Heparin 5,000 Units TID<br>OR<br>Enoxaparin 30mg SQ Daily.<br><small>Monitor for bleeding.</small>')">No</button>
+            </div>
+        </div>
     </div>
-    <div id="result" class="result"></div>
-    <button id="restart" onclick="restart()" style="display:none;">Start Over</button>
-  </div>
+    
+    <div id="result-container" class="result-box hidden">
+        <h2>Recommendation</h2>
+        <p id="result-text"></p>
+        <button id="restart-button" onclick="restartQuiz()">Start Over</button>
+    </div>
 
-  <script>
-    const steps = [
-      {
-        id: "contra",
-        text: "Does the patient have an Anticoagulation Contraindication? (Active bleeding, current AC, plt<30k, cirrhosis+plt<40k, malignant HTN, coagulopathy, INR>1.5)",
-        yes: () => showResult("Hold anticoagulation. Start mechanical prophylaxis. Reassess in 24h."),
-        no: "cancer"
-      },
-      {
-        id: "cancer",
-        text: "Does the patient have Active Cancer?",
-        yes: () => showResult("LMWH during inpatient stay + Khorana Score → DOAC at discharge"),
-        no: "doacExclusion"
-      },
-      {
-        id: "doacExclusion",
-        text: "Any DOAC/Rivaroxaban exclusion? (planned surgery, can't take PO, azole/phenytoin/rifampin, Child Pugh C, hypersensitivity, treatment failure, APS, Child Pugh B/C, valvular heart dz)",
-        yes: "enoxaHeparin",
-        no: "doacCrcl"
-      },
-      {
-        id: "doacCrcl",
-        text: "Is Creatinine Clearance < 30?",
-        yes: () => showResult("Apixaban 2.5mg PO BID"),
-        no: () => showResult("Rivaroxaban 10mg PO daily OR Apixaban 2.5mg PO BID")
-      },
-      {
-        id: "enoxaHeparin",
-        text: "Is Creatinine Clearance < 30?",
-        yes: "heparinPath",
-        no: "enoxaPath"
-      },
-      {
-        id: "enoxaPath",
-        text: "What is the patient's BMI?\n<18 → 30mg SQ daily\n18-40 → 40mg SQ daily\n>40 → 0.5mg/kg SQ daily (max 100mg) + anti-Xa after 3rd dose",
-        yes: () => showResult("See dosing based on BMI above"),
-        no: () => showResult("See dosing based on BMI above")
-      },
-      {
-        id: "heparinPath",
-        text: "Is the patient's BMI > 40?",
-        yes: () => showResult("Heparin 7,500 Units SQ TID"),
-        no: () => showResult("Heparin 5,000 Units SQ TID or Enoxaparin 30mg SQ daily")
-      }
-    ];
+    <p class="disclaimer">
+        This tool is for informational and educational purposes only and is based on the provided VTE clinical practice guideline. It does not constitute medical advice and should not replace professional clinical judgment.
+    </p>
 
-    let current;
+</div>
 
-    function start() {
-      current = steps[0];
-      document.getElementById("result").innerText = "";
-      document.getElementById("restart").style.display = "none";
-      document.getElementById("buttons").style.display = "block";
-      showQuestion(current);
+<script>
+    function showNext(currentId, nextId) {
+        document.getElementById(currentId).classList.add('hidden');
+        document.getElementById(nextId).classList.remove('hidden');
     }
 
-    function showQuestion(step) {
-      document.getElementById("question").innerText = step.text;
+    function showResult(resultHtml) {
+        document.getElementById('quiz-container').classList.add('hidden');
+        const resultContainer = document.getElementById('result-container');
+        const resultText = document.getElementById('result-text');
+        
+        resultText.innerHTML = resultHtml;
+        resultContainer.classList.remove('hidden');
+    }
+    
+    function handleBmiEnoxaparin() {
+        const bmi = parseFloat(document.getElementById('bmi-enox-input').value);
+        if (isNaN(bmi)) {
+            alert("Please enter a valid BMI.");
+            return;
+        }
+
+        if (bmi < 18) {
+            showResult('Enoxaparin 30mg SQ Daily.');
+        } else if (bmi >= 18 && bmi <= 40) {
+            showResult('Enoxaparin 40mg SQ Daily.');
+        } else { // BMI > 40
+            showResult('Enoxaparin 0.5mg/kg SQ Daily (Max Dose=100mg).<br><small>Check Anti-Xa level 4 hours after the 3rd dose (goal is 0.2-0.5).</small>');
+        }
     }
 
-    function answer(resp) {
-      const next = current[resp];
-      if (typeof next === "function") {
-        next();
-      } else if (typeof next === "string") {
-        current = steps.find(s => s.id === next);
-        showQuestion(current);
-      }
-    }
+    function restartQuiz() {
+        // Hide result
+        document.getElementById('result-container').classList.add('hidden');
+        
+        // Hide all question boxes
+        const questionBoxes = document.querySelectorAll('.question-box');
+        questionBoxes.forEach(box => {
+            box.classList.add('hidden');
+        });
 
-    function showResult(text) {
-      document.getElementById("question").innerText = "Recommended Prophylaxis:";
-      document.getElementById("buttons").style.display = "none";
-      document.getElementById("result").innerText = text;
-      document.getElementById("restart").style.display = "inline-block";
+        // Clear input fields
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => input.value = '');
+        
+        // Show the first question and the main container
+        document.getElementById('q-contraindication').classList.remove('hidden');
+        document.getElementById('quiz-container').classList.remove('hidden');
     }
+</script>
 
-    function restart() {
-      start();
-    }
-
-    start();
-  </script>
 </body>
 </html>
